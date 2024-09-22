@@ -1,0 +1,1 @@
+# hiddify-app-example-extension
