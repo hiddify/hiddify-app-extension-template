@@ -278,7 +278,7 @@ func NewExampleExtension() ex.Extension {
 func init() {
 	ex.RegisterExtension(
 		ex.ExtensionFactory{
-			Id:          "com.example.extension",
+			Id:          "github.com/hiddify/hiddify-app-example-extension/hiddify_extension",
 			Title:       "Example Extension",
 			Description: "An example extension",
 			Builder:     NewExampleExtension,
