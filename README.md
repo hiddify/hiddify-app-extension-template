@@ -13,7 +13,7 @@
    - Click on the <img width="100px" alt="Use this template" src="https://github.com/user-attachments/assets/630e6b6c-9d79-4387-9431-6757e72e552d"> button:
    
 2. **Name your project:**
-   - Example: `my_awesome_extension` (use lowercase and underscores for separation).
+   - Example: `my-awesome-extension` (use lowercase and dash for separation).
 3. **Wait for the first CI run:**
    - GitHub Actions will set up the template and commit changes to your new repository.
 
