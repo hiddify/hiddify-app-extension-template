@@ -1,4 +1,4 @@
-module github.com/author_name/hiddify-app-extension-template
+module github.com/author_name/project_urlname
 
 go 1.22.0
 
