@@ -37,5 +37,3 @@ do
     echo "Renamed $filename"
 done
 
-
-bash update_hiddify_core.sh
