@@ -6,97 +6,62 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/hiddify/hiddify-core/config"
+	"github.com/sagernet/sing-box/option"
+
+	"github.com/fatih/color"
 	ex "github.com/hiddify/hiddify-core/extension"
 	ui "github.com/hiddify/hiddify-core/extension/ui"
 )
 
-// Field name constants
-const (
-	CountKey    = "countKey"
-	InputKey    = "inputKey"
-	PasswordKey = "passwordKey"
-	EmailKey    = "emailKey"
-	SelectKey   = "selectKey"
-	TextAreaKey = "textareaKey"
-	SwitchKey   = "switchKey"
-	CheckboxKey = "checkboxKey"
-	RadioboxKey = "radioboxKey"
-	ContentKey  = "contentKey"
+// Color definitions for console output
+var (
+	red    = color.New(color.FgRed).Add(color.Bold)
+	green  = color.New(color.FgGreen).Add(color.Underline)
+	yellow = color.New(color.FgYellow)
 )
 
-type ExampleExtensionData struct { //for storing data
-	Count     int    `json:"count"`
-	Input     string `json:"input"`
-	Password  string `json:"password"`
-	Email     string `json:"email"`
-	Selected  bool   `json:"selected"`
-	Textarea  string `json:"textarea"`
-	SwitchVal bool   `json:"switchVal"`
-	// checkbox  string
-	Radiobox string `json:"radiobox"`
-	Content  string `json:"content"`
+// ExampleExtensionData holds the data specific to ExampleExtension
+type ExampleExtensionData struct {
+	Count int `json:"count"` // Number of counts for the extension
 }
+
+// Field name constants for easy reference, use similar name to the json key
+const (
+	CountKey = "count"
+)
+
+// ExampleExtension represents the core functionality of the extension
 type ExampleExtension struct {
-	ex.Base[ExampleExtensionData]
-	cancel context.CancelFunc
+	ex.Base[ExampleExtensionData]                    // Embedding base extension functionality
+	cancel                        context.CancelFunc // Function to cancel background tasks
+	console                       string             // Stores console output
 }
 
+// GetUI returns the UI form for the extension
 func (e *ExampleExtension) GetUI() ui.Form {
-	// e.setFormData(data)
-	return e.buildForm()
-}
-
-func (e *ExampleExtension) setFormData(data map[string]string) error {
-	if val, ok := data[CountKey]; ok {
-		if intValue, err := strconv.Atoi(val); err == nil {
-			e.Base.Data.Count = intValue
-		} else {
-			return err
+	// Create a form depending on whether there is a background task or not
+	if e.cancel != nil {
+		return ui.Form{
+			Title:       "project_urlname",
+			Description: "project_description",
+			Buttons:     []string{ui.Button_Cancel}, // Cancel button only when task is ongoing
+			Fields: []ui.FormField{
+				{
+					Type:  ui.FieldConsole,
+					Key:   "console",
+					Label: "Console",
+					Value: e.console, // Display console output
+					Lines: 20,
+				},
+			},
 		}
 	}
-	if val, ok := data[InputKey]; ok {
-		e.Base.Data.Input = val
-	}
-	if val, ok := data[PasswordKey]; ok {
-		e.Base.Data.Password = val
-	}
-	if val, ok := data[EmailKey]; ok {
-		e.Base.Data.Email = val
-	}
-	if val, ok := data[SelectKey]; ok {
-		if selectedValue, err := strconv.ParseBool(val); err == nil {
-			e.Base.Data.Selected = selectedValue
-		} else {
-			return err
-		}
-	}
-	if val, ok := data[TextAreaKey]; ok {
-		e.Base.Data.Textarea = val
-	}
-	if val, ok := data[SwitchKey]; ok {
-		if selectedValue, err := strconv.ParseBool(val); err == nil {
-			e.Base.Data.SwitchVal = selectedValue
-		} else {
-			return err
-		}
-	}
-	// if val, ok := data[CheckboxKey]; ok {
-	// 	e.checkbox = val
-	// }
-	if val, ok := data[ContentKey]; ok {
-		e.Base.Data.Content = val
-	}
-	if val, ok := data[RadioboxKey]; ok {
-		e.Base.Data.Radiobox = val
-	}
-	return nil
-}
-
-func (e *ExampleExtension) buildForm() ui.Form {
+	// Inital page
 	return ui.Form{
 		Title:       "project_urlname",
 		Description: "project_description",
-		Buttons:     []string{ui.Button_Submit, ui.Button_Cancel},
+		Buttons:     []string{ui.Button_Cancel, ui.Button_Submit},
 		Fields: []ui.FormField{
 			{
 				Type:        ui.FieldInput,
@@ -104,172 +69,119 @@ func (e *ExampleExtension) buildForm() ui.Form {
 				Label:       "Count",
 				Placeholder: "This will be the count",
 				Required:    true,
-				Value:       fmt.Sprintf("%d", e.Base.Data.Count),
-				Validator:   ui.ValidatorDigitsOnly,
+				Value:       fmt.Sprintf("%d", e.Base.Data.Count), // Default value from stored data
+				Validator:   ui.ValidatorDigitsOnly,               // Only allow digits
 			},
 			{
-				Type:        ui.FieldInput,
-				Key:         InputKey,
-				Label:       "Hi Group",
-				Placeholder: "Hi Group flutter",
-				Required:    true,
-				Value:       e.Base.Data.Input,
-			},
-			{
-				Type:     ui.FieldPassword,
-				Key:      PasswordKey,
-				Label:    "Password",
-				Required: true,
-				Value:    e.Base.Data.Password,
-			},
-			{
-				Type:        ui.FieldEmail,
-				Key:         EmailKey,
-				Label:       "Email Label",
-				Placeholder: "Enter your email",
-				Required:    true,
-				Value:       e.Base.Data.Email,
-			},
-			{
-				Type:  ui.FieldSwitch,
-				Key:   SelectKey,
-				Label: "Select Label",
-				Value: strconv.FormatBool(e.Base.Data.Selected),
-			},
-			{
-				Type:        ui.FieldTextArea,
-				Key:         TextAreaKey,
-				Label:       "TextArea Label",
-				Placeholder: "Enter your text",
-				Required:    true,
-				Value:       e.Base.Data.Textarea,
-			},
-			{
-				Type:  ui.FieldSwitch,
-				Key:   SwitchKey,
-				Label: "Switch Label",
-				Value: strconv.FormatBool(e.Base.Data.SwitchVal),
-			},
-			// {
-			// 	Type:     ui.Checkbox,
-			// 	Key:      CheckboxKey,
-			// 	Label:    "Checkbox Label",
-			// 	Required: true,
-			// 	Value:    e.checkbox,
-			// 	Items: []ui.SelectItem{
-			// 		{
-			// 			Label: "A",
-			// 			Value: "A",
-			// 		},
-			// 		{
-			// 			Label: "B",
-			// 			Value: "B",
-			// 		},
-			// 	},
-			// },
-			{
-				Type:     ui.FieldRadioButton,
-				Key:      RadioboxKey,
-				Label:    "Radio Label",
-				Required: true,
-				Value:    e.Base.Data.Radiobox,
-				Items: []ui.SelectItem{
-					{
-						Label: "A",
-						Value: "A",
-					},
-					{
-						Label: "B",
-						Value: "B",
-					},
-				},
-			},
-			{
-				Type:     ui.FieldTextArea,
-				Readonly: true,
-				Key:      ContentKey,
-				Label:    "Content",
-				Value:    e.Base.Data.Content,
-				Lines:    10,
+				Type:  ui.FieldConsole,
+				Key:   "console",
+				Label: "Console",
+				Value: e.console, // Display current console output
+				Lines: 20,
 			},
 		},
 	}
 }
 
-func (e *ExampleExtension) backgroundTask(ctx context.Context) {
-	i := 1
-	for {
-		select {
-		case <-ctx.Done():
-			e.Base.Data.Content = strconv.Itoa(i) + " Background task stop...\n" + e.Base.Data.Content
-			e.UpdateUI(e.buildForm())
-
-			fmt.Println("Background task stopped")
-			return
-		case <-time.After(1000 * time.Millisecond):
-			txt := strconv.Itoa(i) + " Background task working..."
-			e.Base.Data.Content = txt + "\n" + e.Base.Data.Content
-			e.UpdateUI(e.buildForm())
-			fmt.Println(txt)
+// setFormData validates and sets the form data from input
+func (e *ExampleExtension) setFormData(data map[string]string) error {
+	// Check if CountKey exists in the provided data
+	if val, ok := data[CountKey]; ok {
+		if intValue, err := strconv.Atoi(val); err == nil {
+			// Validate that the count is greater than 5
+			if intValue < 5 {
+				return fmt.Errorf("please use a number greater than 5")
+			} else {
+				e.Base.Data.Count = intValue // Set valid count value
+			}
+		} else {
+			return err // Return parsing error
 		}
-		i++
 	}
+	return nil // Return nil if data is set successfully
 }
 
+// backgroundTask runs a task in the background, updating the console at intervals
+func (e *ExampleExtension) backgroundTask(ctx context.Context) {
+	for count := 1; count <= e.Base.Data.Count; count++ {
+		select {
+		case <-ctx.Done(): // If context is done (cancel is pressed), exit the task
+			e.cancel = nil
+			e.addAndUpdateConsole(red.Sprint("Background Task Canceled")) // Notify cancellation
+			return
+		case <-time.After(1 * time.Second): // Wait for a second before the next iteration
+			e.addAndUpdateConsole(red.Sprint(count), yellow.Sprint(" Background task ", count, " working..."))
+		}
+	}
+	e.cancel = nil
+	e.addAndUpdateConsole(green.Sprint("Background Task Finished Successfully")) // Task completion message
+}
+
+// addAndUpdateConsole adds messages to the console and updates the UI
+func (e *ExampleExtension) addAndUpdateConsole(message ...any) {
+	e.console = fmt.Sprintln(message...) + e.console // Prepend new messages to the console output
+	e.UpdateUI(e.GetUI())                            // Update the UI with the new console content
+}
+
+// SubmitData processes and validates form submission data
 func (e *ExampleExtension) SubmitData(data map[string]string) error {
+	// Validate and set the form data
 	err := e.setFormData(data)
 	if err != nil {
-		return err
+		e.ShowMessage("Invalid data", err.Error()) // Show error message if data is invalid
+		return err                                 // Return the error
 	}
-	ctx, cancel := context.WithCancel(context.Background())
-	e.cancel = cancel
+	// Cancel any ongoing background task
+	if e.cancel != nil {
+		e.cancel()
+	}
+	ctx, cancel := context.WithCancel(context.Background()) // Create a new context for the task
+	e.cancel = cancel                                       // Store the cancel function
 
-	go e.backgroundTask(ctx)
+	go e.backgroundTask(ctx) // Run the background task concurrently
 
-	return nil
+	return nil // Return nil if submission is successful
 }
 
+// Cancel stops the ongoing background task if it exists
 func (e *ExampleExtension) Cancel() error {
 	if e.cancel != nil {
-		e.cancel()
-		e.cancel = nil
+		e.cancel()     // Cancel the task
+		e.cancel = nil // Clear the cancel function
 	}
-	return nil
+	return nil // Return nil after cancellation
 }
 
+// Stop is called when the extension is closed
 func (e *ExampleExtension) Stop() error {
-	if e.cancel != nil {
-		e.cancel()
-		e.cancel = nil
-	}
+	return e.Cancel() // Simply delegate to Cancel
+}
+
+// To Modify user's config before connecting, you can use this function
+func (e *ExampleExtension) BeforeAppConnect(hiddifySettings *config.HiddifyOptions, singconfig *option.Options) error {
 	return nil
 }
 
+// NewExampleExtension initializes a new instance of ExampleExtension with default values
 func NewExampleExtension() ex.Extension {
 	return &ExampleExtension{
 		Base: ex.Base[ExampleExtensionData]{
-			Data: ExampleExtensionData{ //default data when no data is stored
-				Input:     "default",
-				Password:  "123456",
-				Email:     "hiddify-app-extension-template@test.com",
-				Selected:  false,
-				Textarea:  "area",
-				SwitchVal: true,
-				Radiobox:  "A",
-				Content:   "Welcome to Example Extension",
-				Count:     10,
+			Data: ExampleExtensionData{ // Set default data
+				Count: 4, // Default count value
 			},
 		},
+		console: yellow.Sprint("Welcome to ") + green.Sprint("project_urlname\n"), // Default message
 	}
 }
 
+// init registers the extension with the provided metadata
 func init() {
 	ex.RegisterExtension(
 		ex.ExtensionFactory{
-			Id:          "github.com/author_name/hiddify-app-extension-template/hiddify_extension", //should be your package name
-			Title:       "project_urlname",
-			Description: "project_description",
-			Builder:     NewExampleExtension,
+			Id:          "github.com/author_name/hiddify-app-extension-template/hiddify_extension", // Package identifier
+			Title:       "project_urlname",                                                         // Display title of the extension
+			Description: "project_description",                                                     // Brief description of the extension
+			Builder:     NewExampleExtension,                                                       // Function to create a new instance
 		},
 	)
 }
