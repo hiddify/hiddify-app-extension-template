@@ -1,23 +1,31 @@
 # hiddify-app-extension-template
 
 
-## HOW TO USE THIS TEMPLATE
-DO NOT FORK this is meant to be used from Use this template feature.
+## How to Use This Template
 
-1. Click on Use this template
-2. Give a name to your project
-(e.g. my_awesome_extension recommendation is to use all lowercase and underscores separation for repo names.)
-3. Wait until the first run of CI finishes
-(Github Actions will process the template and commit to your new repo)
+**Important:** DO NOT FORK this project. Instead, use the <img width="100px" alt="Use this template" src="https://github.com/user-attachments/assets/630e6b6c-9d79-4387-9431-6757e72e552d">
+ feature.
 
-## Run and Test Extension
-1. execute the following command in your `bash` or `wsl`
-```bash
-./cmd.sh
-```
-2. Open [HTTPS://127.0.0.1:12346](HTTPS://127.0.0.1:12346)
-3. Enable your extension...
-4. Open Your Extension Page
+### Steps to Get Started
+
+0. **Star this project** ⭐
+1. **Use the template:**
+   - Click on the <img width="100px" alt="Use this template" src="https://github.com/user-attachments/assets/630e6b6c-9d79-4387-9431-6757e72e552d"> button:
+   
+2. **Name your project:**
+   - Example: `my_awesome_extension` (use lowercase and underscores for separation).
+3. **Wait for the first CI run:**
+   - GitHub Actions will set up the template and commit changes to your new repository.
+
+## Running and Testing the Extension
+
+1. Run the following command in your terminal (`bash` or `wsl`):
+    ```bash
+    ./cmd.sh
+    ```
+2. Open [https://127.0.0.1:12346](https://127.0.0.1:12346).
+3. Enable your extension.
+4. Navigate to your extension's page.
 
 
 ## 🌎 Translations
