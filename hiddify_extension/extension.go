@@ -24,7 +24,7 @@ const (
 	ContentKey  = "contentKey"
 )
 
-type ExampleExtensionConfig struct {
+type ExampleExtensionData struct { //for storing data
 	Count     int    `json:"count"`
 	Input     string `json:"input"`
 	Password  string `json:"password"`
@@ -37,20 +37,8 @@ type ExampleExtensionConfig struct {
 	Content  string `json:"content"`
 }
 type ExampleExtension struct {
-	ex.Base[ExampleExtensionConfig]
+	ex.Base[ExampleExtensionData]
 	cancel context.CancelFunc
-}
-
-func (e *ExampleExtension) GetId() string {
-	return "example"
-}
-
-func (e *ExampleExtension) GetTitle() string {
-	return "Example Extension"
-}
-
-func (e *ExampleExtension) GetDescription() string {
-	return "This is a sample extension."
 }
 
 func (e *ExampleExtension) GetUI() ui.Form {
@@ -106,8 +94,8 @@ func (e *ExampleExtension) setFormData(data map[string]string) error {
 
 func (e *ExampleExtension) buildForm() ui.Form {
 	return ui.Form{
-		Title:       "Example Form",
-		Description: "This is a sample form.",
+		Title:       "project_urlname",
+		Description: "project_description",
 		Buttons:     []string{ui.Button_Submit, ui.Button_Cancel},
 		Fields: []ui.FormField{
 			{
@@ -259,11 +247,11 @@ func (e *ExampleExtension) Stop() error {
 
 func NewExampleExtension() ex.Extension {
 	return &ExampleExtension{
-		Base: ex.Base[ExampleExtensionConfig]{
-			Data: ExampleExtensionConfig{
+		Base: ex.Base[ExampleExtensionData]{
+			Data: ExampleExtensionData{ //default data when no data is stored
 				Input:     "default",
 				Password:  "123456",
-				Email:     "app@hiddify.com",
+				Email:     "hiddify-app-extension-template@test.com",
 				Selected:  false,
 				Textarea:  "area",
 				SwitchVal: true,
@@ -278,9 +266,9 @@ func NewExampleExtension() ex.Extension {
 func init() {
 	ex.RegisterExtension(
 		ex.ExtensionFactory{
-			Id:          "github.com/hiddify/hiddify-app-example-extension/hiddify_extension",
-			Title:       "Example Extension",
-			Description: "An example extension",
+			Id:          "github.com/author_name/hiddify-app-extension-template/hiddify_extension", //should be your package name
+			Title:       "project_urlname",
+			Description: "project_description",
 			Builder:     NewExampleExtension,
 		},
 	)
