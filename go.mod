@@ -4,10 +4,15 @@ go 1.22.0
 
 toolchain go1.22.3
 
-require github.com/hiddify/hiddify-core v1.9.1-0.20240929103236-ac905590079e
+require (
+	github.com/fatih/color v1.16.0
+	github.com/hiddify/hiddify-core v1.9.1-0.20241001063022-f89724d28900
+	github.com/sagernet/sing-box v1.8.9
+)
 
 require (
 	berty.tech/go-libtor v1.0.385 // indirect
+	github.com/Yiwen-Chan/tinydb v0.0.0-20230129042445-3321642f0674 // indirect
 	github.com/ajg/form v1.5.1 // indirect
 	github.com/andybalholm/brotli v1.1.0 // indirect
 	github.com/bepass-org/warp-plus v1.2.4 // indirect
@@ -17,7 +22,6 @@ require (
 	github.com/cretz/bine v0.2.0 // indirect
 	github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f // indirect
 	github.com/dgryski/go-metro v0.0.0-20211217172704-adc40b04c140 // indirect
-	github.com/fatih/color v1.16.0 // indirect
 	github.com/francoispqt/gojay v1.2.13 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/gaukas/godicttls v0.0.4 // indirect
@@ -34,7 +38,8 @@ require (
 	github.com/google/pprof v0.0.0-20240528025155-186aa0362fba // indirect
 	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/hashicorp/yamux v0.1.1 // indirect
-	github.com/hiddify/hiddify-ip-scanner-extension v0.0.0-20240928194626-7f6dde034dfe // indirect
+	github.com/hiddify/hiddify-app-demo-extension v0.0.0-20241001062241-71c204948b53 // indirect
+	github.com/hiddify/hiddify-ip-scanner-extension v0.0.0-20241001062720-c4b80d40be37 // indirect
 	github.com/hiddify/ray2sing v0.0.0-20240804185422-f340989b59a0 // indirect
 	github.com/imkira/go-observer/v2 v2.0.0-20230629064422-8e0b61f11f1b // indirect
 	github.com/improbable-eng/grpc-web v0.15.0 // indirect
@@ -54,7 +59,6 @@ require (
 	github.com/metacubex/tfo-go v0.0.0-20240821025650-e9be0afd5e7d // indirect
 	github.com/mholt/acmez v1.2.0 // indirect
 	github.com/miekg/dns v1.1.62 // indirect
-	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/onsi/ginkgo/v2 v2.19.0 // indirect
 	github.com/ooni/go-libtor v1.1.8 // indirect
 	github.com/oschwald/maxminddb-golang v1.12.0 // indirect
@@ -82,7 +86,6 @@ require (
 	github.com/sagernet/quic-go v0.47.0-beta.2 // indirect
 	github.com/sagernet/reality v0.0.0-20230406110435-ee17307e7691 // indirect
 	github.com/sagernet/sing v0.4.3 // indirect
-	github.com/sagernet/sing-box v1.8.9 // indirect
 	github.com/sagernet/sing-dns v0.2.3 // indirect
 	github.com/sagernet/sing-mux v0.2.0 // indirect
 	github.com/sagernet/sing-quic v0.2.2 // indirect

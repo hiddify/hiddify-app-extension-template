@@ -2,8 +2,6 @@ package hiddify_extension
 
 import (
 	"context"
-	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/hiddify/hiddify-core/config"
@@ -26,79 +24,11 @@ type ExampleExtensionData struct {
 	Count int `json:"count"` // Number of counts for the extension
 }
 
-// Field name constants for easy reference, use similar name to the json key
-const (
-	CountKey = "count"
-)
-
 // ExampleExtension represents the core functionality of the extension
 type ExampleExtension struct {
 	ex.Base[ExampleExtensionData]                    // Embedding base extension functionality
 	cancel                        context.CancelFunc // Function to cancel background tasks
 	console                       string             // Stores console output
-}
-
-// GetUI returns the UI form for the extension
-func (e *ExampleExtension) GetUI() ui.Form {
-	// Create a form depending on whether there is a background task or not
-	if e.cancel != nil {
-		return ui.Form{
-			Title:       "project_urlname",
-			Description: "project_description",
-			Buttons:     []string{ui.Button_Cancel}, // Cancel button only when task is ongoing
-			Fields: []ui.FormField{
-				{
-					Type:  ui.FieldConsole,
-					Key:   "console",
-					Label: "Console",
-					Value: e.console, // Display console output
-					Lines: 20,
-				},
-			},
-		}
-	}
-	// Inital page
-	return ui.Form{
-		Title:       "project_urlname",
-		Description: "project_description",
-		Buttons:     []string{ui.Button_Cancel, ui.Button_Submit},
-		Fields: []ui.FormField{
-			{
-				Type:        ui.FieldInput,
-				Key:         CountKey,
-				Label:       "Count",
-				Placeholder: "This will be the count",
-				Required:    true,
-				Value:       fmt.Sprintf("%d", e.Base.Data.Count), // Default value from stored data
-				Validator:   ui.ValidatorDigitsOnly,               // Only allow digits
-			},
-			{
-				Type:  ui.FieldConsole,
-				Key:   "console",
-				Label: "Console",
-				Value: e.console, // Display current console output
-				Lines: 20,
-			},
-		},
-	}
-}
-
-// setFormData validates and sets the form data from input
-func (e *ExampleExtension) setFormData(data map[string]string) error {
-	// Check if CountKey exists in the provided data
-	if val, ok := data[CountKey]; ok {
-		if intValue, err := strconv.Atoi(val); err == nil {
-			// Validate that the count is greater than 5
-			if intValue < 5 {
-				return fmt.Errorf("please use a number greater than 5")
-			} else {
-				e.Base.Data.Count = intValue // Set valid count value
-			}
-		} else {
-			return err // Return parsing error
-		}
-	}
-	return nil // Return nil if data is set successfully
 }
 
 // backgroundTask runs a task in the background, updating the console at intervals
@@ -117,34 +47,41 @@ func (e *ExampleExtension) backgroundTask(ctx context.Context) {
 	e.addAndUpdateConsole(green.Sprint("Background Task Finished Successfully")) // Task completion message
 }
 
-// addAndUpdateConsole adds messages to the console and updates the UI
-func (e *ExampleExtension) addAndUpdateConsole(message ...any) {
-	e.console = fmt.Sprintln(message...) + e.console // Prepend new messages to the console output
-	e.UpdateUI(e.GetUI())                            // Update the UI with the new console content
-}
-
 // SubmitData processes and validates form submission data
-func (e *ExampleExtension) SubmitData(data map[string]string) error {
-	// Validate and set the form data
-	err := e.setFormData(data)
-	if err != nil {
-		e.ShowMessage("Invalid data", err.Error()) // Show error message if data is invalid
-		return err                                 // Return the error
-	}
-	// Cancel any ongoing background task
-	if e.cancel != nil {
-		e.cancel()
-	}
-	ctx, cancel := context.WithCancel(context.Background()) // Create a new context for the task
-	e.cancel = cancel                                       // Store the cancel function
+func (e *ExampleExtension) SubmitData(button string, data map[string]string) error {
+	switch button {
+	case ui.ButtonDialogOk, ui.ButtonDialogClose:
+		return nil
+	case ui.ButtonCancel:
+		return e.stop()
+	case ui.ButtonSubmit:
+		if err := e.setFormData(data); err != nil {
+			e.ShowMessage("Invalid data", err.Error()) // Show error message if data is invalid
+			return err                                 // Return the error
+		}
 
-	go e.backgroundTask(ctx) // Run the background task concurrently
+		// stop any ongoing background task
+		if e.cancel != nil {
+			e.cancel()
+		}
 
-	return nil // Return nil if submission is successful
+		// Create a new context for the task and store the cancel function
+		ctx, cancel := context.WithCancel(context.Background())
+		e.cancel = cancel
+
+		// Run the background task concurrently
+		go e.backgroundTask(ctx)
+
+		return nil
+
+	default:
+		// Show message for undefined button actions
+		return e.ShowMessage("Button "+button+" is pressed", "No action is defined for this button")
+	}
 }
 
 // Cancel stops the ongoing background task if it exists
-func (e *ExampleExtension) Cancel() error {
+func (e *ExampleExtension) stop() error {
 	if e.cancel != nil {
 		e.cancel()     // Cancel the task
 		e.cancel = nil // Clear the cancel function
@@ -153,8 +90,8 @@ func (e *ExampleExtension) Cancel() error {
 }
 
 // Stop is called when the extension is closed
-func (e *ExampleExtension) Stop() error {
-	return e.Cancel() // Simply delegate to Cancel
+func (e *ExampleExtension) Close() error {
+	return e.stop() // Simply delegate to stop
 }
 
 // To Modify user's config before connecting, you can use this function
